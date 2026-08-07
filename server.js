@@ -50,7 +50,7 @@ const SUPPORTED_APPS = [
   "google_maps",
   "whatsapp", "messages", "telegram", "gmail",
   "instagram", "facebook", "twitter", "snapchat", "tiktok",
-  "phone", "camera",
+  "phone", "camera", "boomplay", "dream_league_soccer",
 ];
 
 const TOOLS = [
