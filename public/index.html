@@ -149,7 +149,7 @@
         const sessionResp = await fetch("/session", { method: "POST" });
         if (!sessionResp.ok) throw new Error("Failed to get session token");
         const sessionData = await sessionResp.json();
-        const ephemeralKey = sessionData.client_secret.value;
+        const ephemeralKey = sessionData.value;
 
         pc = new RTCPeerConnection();
 
@@ -169,8 +169,7 @@
         const offer = await pc.createOffer();
         await pc.setLocalDescription(offer);
 
-        const model = "gpt-4o-realtime-preview";
-        const sdpResponse = await fetch(`https://api.openai.com/v1/realtime?model=${model}`, {
+        const sdpResponse = await fetch("https://api.openai.com/v1/realtime/calls", {
           method: "POST",
           body: offer.sdp,
           headers: {
@@ -249,4 +248,4 @@
     disconnectBtn.addEventListener("click", disconnect);
   </script>
 </body>
-</html>
+  </html>
