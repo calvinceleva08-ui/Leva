@@ -179,9 +179,10 @@
         });
 
         const answerSdp = await sdpResponse.text();
+        if (!sdpResponse.ok) {
+          throw new Error(`Realtime connection failed: ${answerSdp}`);
+        }
         await pc.setRemoteDescription({ type: "answer", sdp: answerSdp });
-
-        setStatus("Connected — listening");
         orb.classList.add("listening");
         disconnectBtn.disabled = false;
       } catch (err) {
