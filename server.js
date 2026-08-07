@@ -1,22 +1,15 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import fs from "fs";
-import https from "https";
-import http from "http";
-import os from "os";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const CERT_KEY = "./certs/localhost-key.pem";
-const CERT_CRT = "./certs/localhost.pem";
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-
-if (!OPENAI_API_KEY) {
-  console.error("Missing OPENAI_API_KEY in .env — see .env.example");
+if (!GEMINI_API_KEY) {
+  console.error("Missing GEMINI_API_KEY in environment variables");
   process.exit(1);
 }
 
@@ -29,20 +22,13 @@ You are Leva, an intelligent voice assistant.
 
 Personality: professional, friendly, intelligent, concise, proactive. You can
 explain complex topics simply and you occasionally show light wit, but you
-never ramble. Address the user respectfully. When asked your name, say you
-are Leva.
-
-Rules:
-- Keep spoken responses concise unless the user asks for more detail.
-- Be truthful; admit uncertainty rather than guessing.
-- Ask a clarifying question when a request is ambiguous.
-- Never reveal API keys, credentials, or secret configuration.
+never ramble. Keep replies short since they will be spoken aloud. Address
+the user respectfully. When asked your name, say you are Leva.
 
 You can open apps on the user's Android phone using the open_app function.
 When the user asks you to open, launch, or start an app (e.g. "open Spotify",
 "pull up Maps", "message Sarah on WhatsApp"), call open_app with the closest
-matching app_name from the allowed list. Confirm briefly once it's done
-(e.g. "Opening Spotify.").
+matching app_name from the allowed list.
 `.trim();
 
 const SUPPORTED_APPS = [
@@ -55,48 +41,50 @@ const SUPPORTED_APPS = [
 
 const TOOLS = [
   {
-    type: "function",
-    name: "open_app",
-    description:
-      "Open an application on the user's Android phone via a deep link.",
-    parameters: {
-      type: "object",
-      properties: {
-        app_name: {
-          type: "string",
-          enum: SUPPORTED_APPS,
-          description: "Which app to open.",
+    functionDeclarations: [
+      {
+        name: "open_app",
+        description: "Open an application on the user's Android phone via a deep link.",
+        parameters: {
+          type: "OBJECT",
+          properties: {
+            app_name: {
+              type: "STRING",
+              enum: SUPPORTED_APPS,
+              description: "Which app to open.",
+            },
+          },
+          required: ["app_name"],
         },
       },
-      required: ["app_name"],
-    },
+    ],
   },
 ];
 
-app.post("/session", async (req, res) => {
+app.post("/chat", async (req, res) => {
   try {
-    const response = await fetch("https://api.openai.com/v1/realtime/client_secrets", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        session: {
-          type: "realtime",
-          model: "gpt-realtime-2.1",
-          instructions: LEVA_INSTRUCTIONS,
-          audio: { output: { voice: "marin" } },
-          tools: TOOLS,
-          tool_choice: "auto",
+    const { history } = req.body;
+
+    const response = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+      {
+        method: "POST",
+        headers: {
+          "x-goog-api-key": GEMINI_API_KEY,
+          "Content-Type": "application/json",
         },
-      }),
-    });
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: LEVA_INSTRUCTIONS }] },
+          contents: history,
+          tools: TOOLS,
+        }),
+      }
+    );
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error("OpenAI session error:", errText);
-      return res.status(response.status).json({ error: "Failed to create session" });
+      console.error("Gemini error:", errText);
+      return res.status(response.status).json({ error: "Failed to get response" });
     }
 
     const data = await response.json();
@@ -107,33 +95,6 @@ app.post("/session", async (req, res) => {
   }
 });
 
-function getLanIps() {
-  const nets = os.networkInterfaces();
-  const ips = [];
-  for (const name of Object.keys(nets)) {
-    for (const net of nets[name]) {
-      if (net.family === "IPv4" && !net.internal) ips.push(net.address);
-    }
-  }
-  return ips;
-}
-
-const hasCerts = fs.existsSync(CERT_KEY) && fs.existsSync(CERT_CRT);
-const lanIps = getLanIps();
-
-if (hasCerts) {
-  const server = https.createServer(
-    {
-      key: fs.readFileSync(CERT_KEY),
-      cert: fs.readFileSync(CERT_CRT),
-    },
-    app
-  );
-  server.listen(PORT, "0.0.0.0", () => {
-    console.log(`Leva backend running (HTTPS) on port ${PORT}`);
-  });
-} else {
-  http.createServer(app).listen(PORT, "0.0.0.0", () => {
-    console.log(`Leva backend running (HTTP) on port ${PORT}`);
-  });
-    }
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Leva backend running on port ${PORT}`);
+});
