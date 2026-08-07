@@ -1,19 +1,15 @@
-const APP_INTENTS = {
-      spotify: "intent://open#Intent;package=com.spotify.music;scheme=spotify;S.browser_fallback_url=https://play.google.com/store/apps/details?id=com.spotify.music;end",
-      youtube_music: "intent://music.youtube.com#Intent;package=com.google.android.apps.youtube.music;scheme=https;S.browser_fallback_url=https://play.google.com/store/apps/details?id=com.google.android.apps.youtube.music;end",
-      youtube: "intent://www.youtube.com#Intent;package=com.google.android.youtube;scheme=https;S.browser_fallback_url=https://play.google.com/store/apps/details?id=com.google.android.youtube;end",
-      google_maps: "intent://maps.google.com#Intent;package=com.google.android.apps.maps;scheme=https;S.browser_fallback_url=https://play.google.com/store/apps/details?id=com.google.android.apps.maps;end",
-      whatsapp: "intent://send#Intent;package=com.whatsapp;scheme=whatsapp;S.browser_fallback_url=https://play.google.com/store/apps/details?id=com.whatsapp;end",
-      messages: "intent://#Intent;package=com.google.android.apps.messaging;end",
-      telegram: "intent://resolve#Intent;package=org.telegram.messenger;scheme=tg;S.browser_fallback_url=https://play.google.com/store/apps/details?id=org.telegram.messenger;end",
-      gmail: "intent://#Intent;package=com.google.android.gm;end",
-      instagram: "intent://instagram.com#Intent;package=com.instagram.android;scheme=https;S.browser_fallback_url=https://play.google.com/store/apps/details?id=com.instagram.android;end",
-      facebook: "intent://facebook.com#Intent;package=com.facebook.katana;scheme=https;S.browser_fallback_url=https://play.google.com/store/apps/details?id=com.facebook.katana;end",
-      twitter: "intent://twitter.com#Intent;package=com.twitter.android;scheme=https;S.browser_fallback_url=https://play.google.com/store/apps/details?id=com.twitter.android;end",
-      snapchat: "intent://camera#Intent;package=com.snapchat.android;scheme=snapchat;S.browser_fallback_url=https://play.google.com/store/apps/details?id=com.snapchat.android;end",
-      tiktok: "intent://#Intent;package=com.zhiliaoapp.musically;end",
-      phone: "intent://#Intent;action=android.intent.action.DIAL;end",
-      camera: "intent://#Intent;action=android.media.action.IMAGE_CAPTURE;end",
-      boomplay: "intent://#Intent;package=com.afmobi.boomplayer;S.browser_fallback_url=https://play.google.com/store/apps/details?id=com.afmobi.boomplayer;end",
-      dream_league_soccer: "intent://#Intent;package=com.firsttouchgames.dls7;S.browser_fallback_url=https://play.google.com/store/apps/details?id=com.firsttouchgames.dls7;end",
-    };
+{
+  "name": "leva-voice-assistant",
+  "version": "1.0.0",
+  "description": "Leva, a real-time voice assistant using OpenAI's Realtime API",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "dotenv": "^16.4.5",
+    "cors": "^2.8.5"
+  }
+}
